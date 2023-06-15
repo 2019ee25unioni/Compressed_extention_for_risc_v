@@ -11,7 +11,7 @@ module compress_unit (
     logic [15:0] comp_inst;
     logic illegal;
     logic [11:0] comp_imm_branch, comp_addi_14_sp, imm_sLLI, imm_ANDI;
-    logic [31:0] inst_load, inst_store, inst_load_stack, inst_store_stack, inst_jal , inst_j, inst_jalr,inst_jr, inst_branch,inst_LI, inst_LUI, inst_r_type, inst_r_comp_type,inst_nop, inst_i_type, inst_addi_16_sp, inst_addi_14_sp, inst_SLLI, inst_sRLI, inst_sRAI, inst_ADD, inst_ANDI, inst_MV, inst_AND, inst_OR, inst_XOR, inst_SUB;
+    logic [31:0] inst_load, inst_store, inst_load_stack, inst_store_stack, inst_jal , inst_j, inst_jalr,inst_jr, inst_branch_not, inst_branch_equal,inst_LI, inst_LUI, inst_r_type, inst_r_comp_type,inst_nop, inst_i_type, inst_addi_16_sp, inst_addi_14_sp, inst_SLLI, inst_sRLI, inst_sRAI, inst_ADD, inst_ANDI, inst_MV, inst_AND, inst_OR, inst_XOR, inst_SUB;
 
     logic [6:0] load_opcode, store_opcode, R_type_opcode, I_type_opcode, Jal_opcode, B_type_opcode, Jalr_opcode,LUI_opcode, AUIPC_opcode ;
 
@@ -110,8 +110,8 @@ module compress_unit (
                             endcase
                             end
                     3'b101 : compressed_inst_out = inst_j;
-                    3'b110 : compressed_inst_out = inst_branch;
-                    3'b111 : compressed_inst_out = inst_branch;
+                    3'b110 : compressed_inst_out = inst_branch_equal;
+                    3'b111 : compressed_inst_out = inst_branch_not;
                     endcase
 
                     end
@@ -145,29 +145,30 @@ module compress_unit (
 
 
     always_comb begin  // this is the block in which we make extend the compressed to whole instructions
-        inst_load_stack = { {comp_load_i_type}, {5'h02} , {comp_func3} , {rs1}, {load_opcode}};
-        inst_store_stack = {{comp_imm_stack_store[11:5]} , {rs2}, {5'h02}, {comp_imm_stack_store[4:0]}, {store_opcode}};
-        inst_load = {{comp_imm_load_store}, {comp_rs1}, {comp_func3}, {comp_rd}, {load_opcode}};
-        inst_store = {{comp_imm_load_store[11:5]}, {comp_rs2},{comp_rs1}, {comp_func3}, {comp_imm_load_store[4:0]}, {store_opcode}};
-        inst_jal = {  {{imm_jump[20]},{imm_jump[10:1]},{imm_jump[11]},{imm_jump[19:12]}} , {5'h01}, {Jal_opcode}};
-        inst_j = {  {{imm_jump[20]},{imm_jump[10:1]},{imm_jump[11]},{imm_jump[19:12]}} , {5'h00}, {Jal_opcode}};
-        inst_jr = {{12'h0} , {rs1} , {3'b0}, {5'h00}, {Jalr_opcode}};
-        inst_jalr= {{12'h0} , {rs1} , {3'b0}, {5'h01}, {Jalr_opcode}};
-        inst_branch = {{{comp_imm_branch[12]} , {comp_imm_branch [10:5]}} , {comp_rs1} , {comp_func3} , {{comp_imm_branch[4:1]},{comp_imm_branch[11]}} , {5'h00} , {B_type_opcode}};
-        inst_LI = {{imm_Li}, {5'h00} , {comp_func3} , {rd} , {I_type_opcode}};
-        inst_LUI = { {imm_LUI} , {rd} , {LUI_opcode}};
-        inst_i_type = { {comp_i_tpye} , {rs1} , {comp_func3} , {rs1} , {I_type_opcode}}  ; 
-        inst_addi_16_sp = {{imm_LUI_addi_16_sp} , {5'h02} , {LUI_opcode}};
-        inst_addi_14_sp = {{comp_addi_14_sp}, {5'h02} , {comp_func3} , {comp_rd} , {I_type_opcode}};
-        inst_SLLI = {{7'b0} , {imm_sLLI} ,{rs1} , {comp_func3}, {rs1}, {I_type_opcode}};
-        inst_sRLI = {{7'b0} , {imm_sLLI} ,{comp_rs1} , {comp_func3}, {comp_rs1}, {I_type_opcode}};
-        inst_sRAI = {{7'b0} , {imm_sLLI} ,{comp_rs1} , {comp_func3}, {comp_rs1}, {I_type_opcode}};
-        inst_ANDI = {{imm_ANDI} ,{comp_rs1}, {3'b111}, {comp_rs1}, {I_type_opcode}};
-        inst_ADD = {{7'b0}, {rs2}, {rs1}, {3'b0} , {rs1} , {R_type_opcode} };
-        inst_MV ={{7'b0}, {rs2}, {5'b0}, {3'b0} , {rs1} , {R_type_opcode} };
-        inst_AND = {{7'b0}, {comp_rs2}, {comp_rs1}, {3'b111} , {comp_rd} , {R_type_opcode} };
-        inst_OR = {{7'b0}, {comp_rs2}, {comp_rs1}, {3'b110} , {comp_rd} , {R_type_opcode} };
-        inst_XOR = {{7'b0}, {comp_rs2}, {comp_rs1}, {3'b100} , {comp_rd} , {R_type_opcode} };
-        inst_AND = {{7'b0100000}, {comp_rs2}, {comp_rs1}, {3'b000} , {comp_rd} , {R_type_opcode} };
+        inst_load_stack = { {comp_load_i_type}, {5'h02} , {comp_func3} , {rs1}, {load_opcode}};     // lw rd ,offset[7:2](x2)
+        inst_store_stack = {{comp_imm_stack_store[11:5]} , {rs2}, {5'h02},{3'b010}, {comp_imm_stack_store[4:0]}, {store_opcode}};   //sw rs2, offset[7:2](x2)
+        inst_load = {{comp_imm_load_store}, {comp_rs1}, {comp_func3}, {comp_rd}, {load_opcode}};    // lw rd', offset[6:2](rs1')
+        inst_store = {{comp_imm_load_store[11:5]}, {comp_rs2},{comp_rs1}, {3'b010}, {comp_imm_load_store[4:0]}, {store_opcode}};    //sw rs2', offset[6:2](rs1')
+        inst_jal = {  {{imm_jump[20]},{imm_jump[10:1]},{imm_jump[11]},{imm_jump[19:12]}} , {5'h01}, {Jal_opcode}};  // jal x1, offset[11:1].
+        inst_j = {  {{imm_jump[20]},{imm_jump[10:1]},{imm_jump[11]},{imm_jump[19:12]}} , {5'h00}, {Jal_opcode}};    //  jal x0, offset[11:1].
+        inst_jr = {{12'h0} , {rs1} , {3'b0}, {5'h00}, {Jalr_opcode}};   //jalr x0, rs1, 0.
+        inst_jalr= {{12'h0} , {rs1} , {3'b0}, {5'h01}, {Jalr_opcode}};  //jalr x1, rs1, 0.
+        inst_branch_equal = {{{comp_imm_branch[12]} , {comp_imm_branch [10:5]}} , {comp_rs1} , {3'b000} , {{comp_imm_branch[4:1]},{comp_imm_branch[11]}} , {5'h00} , {B_type_opcode}};  // beq rs1', x0, offset[8:1].
+        inst_branch_not = {{{comp_imm_branch[12]} , {comp_imm_branch [10:5]}} , {comp_rs1} , {3'b001} , {{comp_imm_branch[4:1]},{comp_imm_branch[11]}} , {5'h00} , {B_type_opcode}};    // bne rs1', x0, offset[8:1]
+        inst_LI = {{imm_Li}, {5'h00} , {3'b0} , {rd} , {I_type_opcode}};                                // addi rd, x0, imm[5:0]
+        inst_LUI = { {imm_LUI} , {rd} , {LUI_opcode}};                                                  // lui rd, nzuimm[17:12]
+        inst_i_type = { {comp_i_tpye} , {rs1} , {comp_func3} , {rs1} , {I_type_opcode}}  ;              // only for  addi rd, rd, nzimm[5:0]
+        inst_addi_16_sp = {{imm_LUI_addi_16_sp} , {5'h02} , {LUI_opcode}};                              // addi x2, x2, nzimm[9:4].
+        inst_addi_14_sp = {{comp_addi_14_sp}, {5'h02} , {comp_func3} , {comp_rd} , {I_type_opcode}};    // addi rd', x2, nzuimm[9:2].
+        inst_SLLI = {{7'b0} , {imm_sLLI} ,{rs1} , {3'b001}, {rs1}, {I_type_opcode}};                    // slli rd, rd, shamt[5:0]
+        inst_sRLI = {{7'b0} , {imm_sLLI} ,{comp_rs1} , {3'b101}, {comp_rs1}, {I_type_opcode}};          // srli rd', rd', shamt[5:0]
+        inst_sRAI = {{7'b0100000} , {imm_sLLI} ,{comp_rs1} , {3'b101}, {comp_rs1}, {I_type_opcode}};    // srai rd', rd', shamt[5:0]
+        inst_ANDI = {{imm_ANDI} ,{comp_rs1}, {3'b111}, {comp_rs1}, {I_type_opcode}};                    // andi rd', rd', imm[5:0]
+        inst_ADD = {{7'b0}, {rs2}, {rs1}, {3'b0} , {rs1} , {R_type_opcode} };                           // add rd, rd, rs2.
+        inst_MV ={{7'b0}, {rs2}, {5'b0}, {3'b0} , {rs1} , {R_type_opcode} };                            // add rd, x0, rs2
+        inst_AND = {{7'b0}, {comp_rs2}, {comp_rs1}, {3'b111} , {comp_rd} , {R_type_opcode} };           // and rd', rd', rs2'
+        inst_OR = {{7'b0}, {comp_rs2}, {comp_rs1}, {3'b110} , {comp_rd} , {R_type_opcode} };            // or rd', rd', rs2'
+        inst_XOR = {{7'b0}, {comp_rs2}, {comp_rs1}, {3'b100} , {comp_rd} , {R_type_opcode} };           // xor rd', rd', rs2'
+        inst_SUB = {{7'b0100000}, {comp_rs2}, {comp_rs1}, {3'b000} , {comp_rd} , {R_type_opcode} };     // sub rd', rd', rs2'
     end
 endmodule
