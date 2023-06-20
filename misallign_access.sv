@@ -31,7 +31,16 @@ module missalign_access (
     end
 
     always_ff @(posedge clk) begin // this is a register in which we ask if the upper 16 bits is not a compressed intertuciton 
-        
+        if (reset) is_missaligned =1'b0;
+        else begin 
+        if (pc_is_2) begin 
+            if (inst_in[17:16] == 2'b11) begin 
+                is_missaligned =1'b1;
+            end
+            else is_missaligned =1'b0;
+            
+            end
+        end
     end
 
 
