@@ -1,0 +1,7 @@
+check the bits of lui -->porblem of toolchain
+check sub --> corrected mistake of comp_rd to the wrong bitfield
+check or  -->corrected mistake of comp_rd to the wrong bitfield
+check and s0, s0, s1 -->corrected mistake of comp_rd to the wrong bitfield
+check beqz s1, 24<cel> ---.corrected mistake in the rs2 allocation
+check bnez s0, 8 <bel>	---.corrected mistake in the rs2 allocation
+reomve ssli64 from testbench ---> corrected
