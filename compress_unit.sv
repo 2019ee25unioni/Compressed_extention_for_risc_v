@@ -1,6 +1,6 @@
 //verilator lint_off UNUSED
 module compress_unit (
-    input logic [31:0] inst,input logic  pc,  output logic next_comp16, output logic [31:0] compressed_inst_out
+    input logic [31:0] inst,input logic  pc,pc_missallign,  output logic next_comp16, output logic [31:0] compressed_inst_out
 );
     logic [1:0] comp_opcode;
     logic [11:0] comp_load_i_type, comp_imm_stack_store,comp_imm_load_store, imm_Li, comp_i_tpye;
@@ -52,10 +52,13 @@ module compress_unit (
 
 
     always_comb begin // a sel that we use to isolate the compressed instruction , we read the LSD of pc bit 1 and find if we are at 0x2 or 0x4
-
+    if (pc_missallign) begin 
+        comp_inst = inst[15:0]; //if missalligned instruction has occured, chose the lower bits
+    end
+    else begin 
         if(pc) comp_inst = inst[31:16];
         else comp_inst = inst[15:0];//change
-        
+    end
     end
 
     always_comb begin // this is the sel which tells the pc to do +2 and inst_mem to to address>>1
@@ -174,6 +177,6 @@ module compress_unit (
         inst_OR = {{7'b0}, {comp_rs2}, {comp_rs1}, {3'b110} , {comp_rs1} , {R_type_opcode} };            // or rd', rd', rs2'
         inst_XOR = {{7'b0}, {comp_rs2}, {comp_rs1}, {3'b100} , {comp_rs1} , {R_type_opcode} };           // xor rd', rd', rs2'
         inst_SUB = {{7'b0100000}, {comp_rs2}, {comp_rs1}, {3'b000} , {comp_rs1} , {R_type_opcode} };     // sub rd', rd', rs2'
-	inst_E_Break ={{12'b000000000001},{5'b0},{3'b0},{5'b0},{7'b1110011}};
+	    inst_E_Break ={{12'b000000000001},{5'b0},{3'b0},{5'b0},{7'b1110011}};
     end
 endmodule
