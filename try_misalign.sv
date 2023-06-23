@@ -59,7 +59,7 @@ module try_misalign (
 
         end
         s2 : begin  // instruction fetched and concatinated, turn off the stall signal and keep the pc as it is
-            inst_out = {{inst_in[15:0]}, upper_16};
+            inst_out = {{inst_in[15:0]}, {upper_16}};
             pc_out = pc_in; 
             pc_4_next =1'b1;
             stall_pc = 1'b0;

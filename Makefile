@@ -1,4 +1,4 @@
-MODULE=compress_unit
+MODULE=try_misalign
 
 .PHONY:sim
 sim: waveform.vcd
@@ -7,7 +7,7 @@ sim: waveform.vcd
 verilate: .stamp.verilate
 
 .PHONY:build
-build: obj_dir/Valu
+build: obj_dir/V$(MODULE)
 
 .PHONY:waves
 waves: waveform.vcd
@@ -33,7 +33,7 @@ waveform.vcd: ./obj_dir/V$(MODULE)
 
 .PHONY:lint
 lint: $(MODULE).sv
-	verilator --lint-only $(MODULE).sv
+	verilator -Wall --lint-only $(MODULE).sv
 
 .PHONY: clean
 clean:
