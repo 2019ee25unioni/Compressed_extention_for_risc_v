@@ -32,6 +32,35 @@ module c_misalign_tb ();
             inst_in = 32'h41040040;
 
         end
+
+@(posedge clk) begin 
+            sel_for_branch=1'b0;
+            pc_in=32'b0;
+            inst_in = 32'h006fc104;
+
+        end
+         
+
+    @(posedge stall_pc) begin
+            sel_for_branch=1'b1;
+
+        end
+
+        
+
+        @(posedge clk) begin 
+            sel_for_branch=1'b0;
+            pc_in=32'b0;
+            inst_in = 32'h0863c104;
+
+        end
+
+         @(stall_pc) begin
+            inst_in = 32'h41040094;
+
+        end
+
+
         
 
 
