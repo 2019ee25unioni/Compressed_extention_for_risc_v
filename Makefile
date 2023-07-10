@@ -1,4 +1,4 @@
-MODULE=try_misalign
+MODULE=c_misalign
 
 .PHONY:sim
 sim: waveform.vcd
