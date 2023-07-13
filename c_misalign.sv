@@ -13,6 +13,7 @@ module c_misalign (
 );
 
     logic [15:0] upper_16;
+    logic [31:0] conc_32_misallign;
     logic is_missaligned;
     typedef enum logic[1:0] {s0 = 2'b00, s1= 2'b01, s2=2'b10} states;
     states current_state, next_state;
@@ -29,6 +30,14 @@ module c_misalign (
         else begin
         if (current_state != s0) upper_16 <=upper_16;
         else if (is_missaligned & (current_state == s0)) upper_16<= inst_in[31:16];
+        end
+    end
+
+    always_ff @( negedge clk ) begin // the register that holds the entire missalligned instruction
+        if (reset) conc_32_misallign<=32'b0;
+        else begin 
+            if (current_state == s1) conc_32_misallign<={{inst_in[15:0]}, {upper_16}};
+
         end
     end
 
@@ -67,7 +76,7 @@ module c_misalign (
 
         end
         s2 : begin  // instruction fetched and concatinated, turn off the stall signal and keep the pc as it is
-            inst_out = {{inst_in[15:0]}, {upper_16}};
+            inst_out = conc_32_misallign;
             pc_out = pc_in; 
             pc_misaligned_o =1'b1;
             stall_pc = 1'b0;
