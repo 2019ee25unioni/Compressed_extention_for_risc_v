@@ -15,7 +15,7 @@ module c_misalign (
     logic [15:0] upper_16;
     logic [31:0] conc_32_misallign;
     logic is_missaligned, next_misaligned;
-    
+
     typedef enum logic[1:0] {s0 = 2'b00, s1= 2'b01, s2=2'b10} states;
     states current_state, next_state;
 
@@ -89,8 +89,12 @@ module c_misalign (
             pc_out = pc_in; 
             pc_misaligned_o =1'b1;
             stall_pc = 1'b0;
+            if (sel_for_branch) next_state=s0;
+            else begin
                 if (next_misaligned ) next_state =s1;        // if the missalignment is in the s1 stage, go to s1 instead of s0 after s2
                 else next_state =s0;
+            end
+
         end
 
         default next_state =s0;
