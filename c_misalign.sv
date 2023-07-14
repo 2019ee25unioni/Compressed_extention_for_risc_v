@@ -14,15 +14,22 @@ module c_misalign (
 
     logic [15:0] upper_16;
     logic [31:0] conc_32_misallign;
-    logic is_missaligned;
+    logic is_missaligned, next_misaligned;
+    
     typedef enum logic[1:0] {s0 = 2'b00, s1= 2'b01, s2=2'b10} states;
     states current_state, next_state;
 
     always_comb begin // missallignment check
-        if((inst_in[17:16] == 2'b11) &  (inst_in[1:0] != 2'b11))begin
+        if((inst_in[17:16] == 2'b11) )begin
              is_missaligned =1'b1;
         end
         else is_missaligned =1'b0;
+    end
+
+    always_ff @( posedge clk  ) begin   // to continue the misallignement into the next cycle
+        if (reset) next_misaligned<=1'b0;
+        else next_misaligned<=is_missaligned;
+        
     end
 
     always_ff @( posedge clk ) begin // a register that hold the upper 16 bits of the previous instruction that will be concatinated with the current instruction and sent forwards
@@ -30,13 +37,15 @@ module c_misalign (
         else begin
         if (current_state != s0) upper_16 <=upper_16;
         else if (is_missaligned & (current_state == s0)) upper_16<= inst_in[31:16];
+        else if ((next_misaligned)& (current_state == s2))upper_16<=conc_32_misallign[31:16];
         end
     end
 
     always_ff @( negedge clk ) begin // the register that holds the entire missalligned instruction
         if (reset) conc_32_misallign<=32'b0;
         else begin 
-            if (current_state == s1) conc_32_misallign<={{inst_in[15:0]}, {upper_16}};
+            if (current_state == s1) conc_32_misallign<=inst_in;
+            else if (current_state == s0) conc_32_misallign<=32'b0;
 
         end
     end
@@ -76,11 +85,12 @@ module c_misalign (
 
         end
         s2 : begin  // instruction fetched and concatinated, turn off the stall signal and keep the pc as it is
-            inst_out = conc_32_misallign;
+            inst_out = {{conc_32_misallign[15:0]},{upper_16}};
             pc_out = pc_in; 
             pc_misaligned_o =1'b1;
             stall_pc = 1'b0;
-            next_state =s0;
+                if (next_misaligned ) next_state =s1;        // if the missalignment is in the s1 stage, go to s1 instead of s0 after s2
+                else next_state =s0;
         end
 
         default next_state =s0;
