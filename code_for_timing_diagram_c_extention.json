@@ -1,0 +1,14 @@
+{signal: [
+ ['inputs',
+  {name: 'clk', wave: 'P..........'},
+  {name: 'reset', wave:'hl.........'},
+  {name: 'inst_in', wave: 'x8.343545z.', data: ['c_sub ,c_add', 'ADD,c_lui', 'SUB,ADD','ADD,c_lui', 'c_jal,SUB','SUB,ADD', 'c_jal,SUB']},
+  {name: 'pc_in', wave: 'x8345.7.95z', data: ['0', '2', '4', '6','10','14','16']},
+  {name: 'sel_for_branch', wave: 'l..........'}]
+  , ['outputs',
+  {name: 'pc_out', wave: 'x83453436xz', data: ['0', '2', '4', '8', '6', '12', '10','14']},
+  {name: 'inst_out', wave: 'x83456345xz', data: ['add_extend', 'sub_extend', 'lui_extend', 'NOP','religned_add','Nop','religned_sub','jal_extend']},
+  {name: 'next_16', wave: 'lh..l...hl.'},
+  {name: 'stall_pc', wave: 'l...hlhl...'}
+  ], 
+], config: { hscale: 3 }}
