@@ -35,10 +35,12 @@ module c_misalign (
     always_ff @( posedge clk ) begin // a register that hold the upper 16 bits of the previous instruction that will be concatinated with the current instruction and sent forwards
         if (reset) upper_16 <=16'b0;
         else begin
-        if (current_state == s1) upper_16 <=upper_16;
-        else if (is_missaligned & (current_state == s0)) upper_16<= inst_in[31:16];
-        else if ((next_misaligned)& (current_state == s2))upper_16<=conc_32_misallign[31:16];
+        if (current_state != s1) begin 
+            if (is_missaligned & (current_state == s0)) upper_16<= inst_in[31:16];
+            else if ((next_misaligned)& (current_state == s2))upper_16<=conc_32_misallign[31:16];
         end
+        else upper_16 <=upper_16;
+    end
     end
 
     always_ff @( negedge clk ) begin // the register that holds the entire missalligned instruction
