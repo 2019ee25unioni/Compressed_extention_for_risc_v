@@ -104,7 +104,7 @@ Here is the waveform of the module c_misalign:
 ![image](https://github.com/2019ee25unioni/Compressed_extention_for_risc_v/assets/87369697/b206b653-f818-4d8f-b325-c630d717bb0e)
 
 ## Usage
-[Click here] (https://github.com/2019ee25unioni/ateeb_riscv) to see the successful implementation of the c extension on a 3 stage pipelined proccessor.
+[Click here](https://github.com/2019ee25unioni/ateeb_riscv) to see the successful implementation of the c extension on a 3 stage pipelined proccessor.
 
 To use the `c_extension_unit` module, instantiate it in your Verilog design and connect the necessary inputs and outputs. Provide the clock signal (`clk_i`), reset signal (`reset_i`), program counter input (`pc_i`), instruction input (`instr_i`), and branch taken signal input (`br_taken_i`). Connect the outputs as needed.
 
