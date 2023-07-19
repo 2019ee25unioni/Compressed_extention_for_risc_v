@@ -13,9 +13,15 @@ The Compressed Extension is fully compatible with the base RISC-V architecture, 
 By leveraging the Compressed Extension, developers can reduce the memory footprint of their programs, leading to benefits such as reduced storage requirements, improved cache utilization, and potentially faster instruction fetches. However, it's important to note that not all instructions can be compressed, and there are limitations to the compression scheme. Certain instructions, such as those with larger immediate values or those involving complex operations, may not be eligible for compression.
 
 ## *C_Extension_Unit*
+The `c_extension_unit` module is a Verilog module that implements the compressed extension. It has two submodules `c_misalign` and `c_decode`. The module supports all of the standard compressed instructions. 
+
+The modular diagram of the c_extension unit is shown below:
+![image](https://github.com/2019ee25unioni/Compressed_extention_for_risc_v/assets/87369697/d1eea28c-863e-41f7-877f-541157eb5ccb)
+
+And here is the wwaveform of the module:
 ![c_extention_waveform](https://github.com/2019ee25unioni/Compressed_extention_for_risc_v/assets/87369697/57322894-511c-420c-9643-a07ed4cf6e21)
 
-The `c_extension_unit` module is a Verilog module that implements the compressed extension. It has two submodules `c_misalign` and `c_decode`. The module supports all of the standard compressed instructions. The complete list of them is given below:
+The complete list of supported instructions is given below:
 
 **R-Type Instructions:**
 
@@ -84,16 +90,21 @@ The `c_extension_unit` module is a Verilog module that implements the compressed
 ## _Instantiated Modules_
 
 ### `c_misalign`
-![image](https://github.com/2019ee25unioni/Compressed_extention_for_risc_v/assets/87369697/636c915d-b089-4f3e-8509-376d39a76f84)
 
 The `c_misalign` module is instantiated to handle misalignment of the program counter and instruction. It takes the clock and reset signals, branch taken signal, program counter input (`pc_i`), and instruction input (`instr_i`). It provides the stall signal output (`stall_o`), program counter misalignment signal output (`pc_misalign`), realigned program counter output (`pc_realigned_o`), and instruction output (`instruction`).
 
+Here is the waveform of the module c_misalign:
+![image](https://github.com/2019ee25unioni/Compressed_extention_for_risc_v/assets/87369697/636c915d-b089-4f3e-8509-376d39a76f84)
+
 ### `c_decode`
-![image](https://github.com/2019ee25unioni/Compressed_extention_for_risc_v/assets/87369697/b206b653-f818-4d8f-b325-c630d717bb0e)
 
 The `c_decode` module is instantiated to decode the compressed instruction. It takes the instruction input (`instruction`), the half bit of the program counter (`pc_i[1]`), and the program counter misalignment signal input (`pc_misalign`). It provides the next_comp16 signal output (`next_comp16`) and the compressed instruction output (`instr_o`).
 
+Here is the waveform of the module c_misalign:
+![image](https://github.com/2019ee25unioni/Compressed_extention_for_risc_v/assets/87369697/b206b653-f818-4d8f-b325-c630d717bb0e)
+
 ## Usage
+[Click here] (https://github.com/2019ee25unioni/ateeb_riscv) to see the successful implementation of the c extension on a 3 stage pipelined proccessor.
 
 To use the `c_extension_unit` module, instantiate it in your Verilog design and connect the necessary inputs and outputs. Provide the clock signal (`clk_i`), reset signal (`reset_i`), program counter input (`pc_i`), instruction input (`instr_i`), and branch taken signal input (`br_taken_i`). Connect the outputs as needed.
 
