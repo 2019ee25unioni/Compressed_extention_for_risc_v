@@ -27,25 +27,30 @@ int main (int argc, char** argv , char** env) {
 		dut->eval();		
 		if (dut->clk == 1) {
 		if ((posedge_cnt >=3) && (posedge_cnt <=4)) {
-			dut->instr_i= 0x006fc104 ;
+			dut->instr_i= 0x0040006f;
 			dut->pc_i = 0;
 
 		}
 
-		if ((posedge_cnt >=4 ) && (posedge_cnt <=5 )&& (dut->pc_half_o == 1)){
+		if ((posedge_cnt >=4 ) && (posedge_cnt <=5 )&& (dut->fetch_compressed == 1)){
 				dut->pc_i=2;
 
 		}
 
-		if ((posedge_cnt >= 4)&& (posedge_cnt <=6 )&&  (dut->i_cache_request == 1)){
-			dut->instr_i = 0x41040040;
-			dut->i_cache_valid	=1;
+		if ((posedge_cnt >=5 ) && (posedge_cnt <=6 )&& (dut->decode_compressed == 1)){
+				dut->pc_i=4;
 
 		}
 
-		if (posedge_cnt >7){
+		if ((posedge_cnt >= 6)&& (posedge_cnt <=7 )){
+			dut->instr_i = 			0x44a9c104 ;
+			
+
+		}
+
+		if (posedge_cnt >8){
 			dut->pc_i=6; 
-			dut->i_cache_valid	=0;
+			
 		}
 		
 		posedge_cnt++ ;
@@ -66,8 +71,7 @@ void dut_reset (Vc_extention_unit *dut, vluint64_t &sim_time){
         dut->reset = 1;
         dut->pc_i =0;
 		dut->instr_i=0;
-		dut->br_taken_i=0;
-		dut->i_cache_valid=0;
+
     }
 }
 

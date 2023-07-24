@@ -1,4 +1,4 @@
-MODULE=c_misalign
+MODULE=c_extention_unit
 
 .PHONY:sim
 sim: waveform.vcd
@@ -28,7 +28,7 @@ waveform.vcd: ./obj_dir/V$(MODULE)
 .stamp.verilate: $(MODULE).sv tb_$(MODULE).cpp
 	@echo
 	@echo "### VERILATING ###"
-	verilator -Wall --trace --x-assign unique --x-initial unique -cc $(MODULE).sv --exe tb_$(MODULE).cpp
+	verilator  --trace --x-assign unique --x-initial unique -cc $(MODULE).sv --exe tb_$(MODULE).cpp
 	@touch .stamp.verilate
 
 .PHONY:lint
