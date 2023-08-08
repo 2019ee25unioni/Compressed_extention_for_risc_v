@@ -16,7 +16,7 @@ module c_misalign_tb ();
 
     c_misalign missalligned (clk, reset, sel_for_branch, pc_in, inst_in, stall_pc, pc_misaligned_o, pc_out, inst_out);
     initial begin 
-        reset =1'b1;
+        reset =1'b1;next_misaligned
         #1;
         reset =1'b0;
         #1;

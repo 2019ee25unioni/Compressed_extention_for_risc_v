@@ -2,15 +2,15 @@
 #include <iostream>
 #include <verilated.h>
 #include <verilated_vcd_c.h>
-#include "Vcompress_unit.h"
-//#include "Vcompress_unit___024unit.h"
+#include "Vc_decode.h"
+//#include "Vc_decode___024unit.h"
 
 #define MAX_SIM_TIME 100
 vluint64_t sim_time = 0;
 
 int main(int argc, char** argv, char** env) {
 	Verilated::commandArgs(argc, argv);
-    	Vcompress_unit *dut = new Vcompress_unit;
+    	Vc_decode *dut = new Vc_decode;
 
     Verilated::traceEverOn(true);
     VerilatedVcdC *m_trace = new VerilatedVcdC;

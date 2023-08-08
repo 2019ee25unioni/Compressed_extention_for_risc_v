@@ -1,5 +1,5 @@
 //verilator lint_off UNUSED
-module compress_unit (
+module c_decode (
     input logic [31:0] inst,input logic  pc,pc_missallign,  output logic next_comp16, output logic [31:0] compressed_inst_out
 );
     logic [1:0] comp_opcode;

@@ -1,5 +1,5 @@
-module c_extension_unit(
-    input   logic           clk_i,
+module c_top(
+    input   logic           clk,
     input   logic           reset_i,
 
     input   logic   [31:0]  pc_i,
@@ -20,7 +20,7 @@ module c_extension_unit(
 
 c_misalign misalign (
     //inputs
-    .clk                    (clk_i), 
+    .clk                    (clk), 
     .reset                  (reset_i), 
 
     .sel_for_branch         (br_taken_i),
@@ -38,7 +38,7 @@ c_decode decode (
     //inputs
     .inst                   (instruction),
     .pc                     (pc_i[1]),
-    .pc_misaligned_i        (pc_misalign),  
+    .pc_missallign        (pc_misalign),  
     
     //outputs
     .next_comp16            (pc_half_o), 
