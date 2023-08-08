@@ -12,8 +12,8 @@ module c_extention_unit(
     output  logic   [31:0]  instr_o
 
 );
-    logic                   pc_misalign, pc_flip , sel_for_next_stage;
-    logic           [31:0]  instruction,instruction_flip, secondary_inst;
+    logic                   pc_misalign, pc_flip ;
+    logic           [31:0]  instruction_flip;
 
 
     assign pc_misalign=1'b0;
@@ -25,15 +25,12 @@ ateeb_miss pre_compress_unit (
     .inst                (instr_i),
 
     //outputs
-    .secondary_inst               (secondary_inst),
+    
     .is_compressed                 (fetch_compressed),
-    .next_compressed                (sel_for_next_stage)
+    
 );
 
-always_comb begin 
-    if (sel_for_next_stage) instruction=secondary_inst;
-    else instruction=instr_i;
-end
+
 
 
 always_ff @(posedge clk) begin
@@ -43,7 +40,7 @@ always_ff @(posedge clk) begin
     end
 
     else begin 
-        instruction_flip<=instruction;
+        instruction_flip<=instr_i;
         pc_flip<=pc_i;
 
     end

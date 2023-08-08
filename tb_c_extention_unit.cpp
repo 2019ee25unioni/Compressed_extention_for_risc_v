@@ -27,19 +27,17 @@ int main (int argc, char** argv , char** env) {
 		dut->eval();		
 		if (dut->clk == 1) {
 		if ((posedge_cnt >=3) && (posedge_cnt <=4)) {
-			dut->instr_i= 0x0040006f;
+			dut->instr_i= 0x4104c104;
 			dut->pc_i = 0;
 
 		}
 
-		if ((posedge_cnt >=4 ) && (posedge_cnt <=5 )&& (dut->fetch_compressed == 1)){
-				dut->pc_i=2;
-
+		if ((posedge_cnt>=4)&&(posedge_cnt <=5)&&(dut->fetch_compressed==1)){
+			dut->pc_i=2;
 		}
 
-		if ((posedge_cnt >=5 ) && (posedge_cnt <=6 )&& (dut->decode_compressed == 1)){
-				dut->pc_i=4;
-
+		if ((posedge_cnt>=5)&&(posedge_cnt <=6)&&(dut->fetch_compressed==1)){
+			dut->pc_i=4;
 		}
 
 		if ((posedge_cnt >= 6)&& (posedge_cnt <=7 )){
@@ -48,8 +46,18 @@ int main (int argc, char** argv , char** env) {
 
 		}
 
+			if ((posedge_cnt >=7 ) && (posedge_cnt <=8 )&& (dut->fetch_compressed == 1)){
+				dut->pc_i=6;
+
+		}
+
+		if ((posedge_cnt >=8 ) && (posedge_cnt <=9 )&& (dut->decode_compressed == 1)){
+				dut->pc_i=8;
+
+		}
+
 		if (posedge_cnt >8){
-			dut->pc_i=6; 
+			dut->pc_i=10; 
 			
 		}
 		
