@@ -3,12 +3,12 @@ module c_misalign (
     input   logic           reset, 
 
     input   logic           sel_for_branch,
-    input   logic   [31:0]  pc_in, 
+ 
     input   logic   [31:0]  inst_in,
 
     output  logic           stall_pc,
     output  logic           pc_misaligned_o,
-    output  logic   [31:0]  pc_out, 
+    output  logic           misalign_fetch,
     output  logic   [31:0]  inst_out
 );
 
@@ -61,26 +61,25 @@ module c_misalign (
 
     always_comb begin  // the fsm's combinations states and outputs of the module
         stall_pc = 1'b0;
-        pc_out=pc_in;
         inst_out=inst_in;
         pc_misaligned_o =1'b0;
+        misalign_fetch =1'b0;
 
         case(current_state)
         s0 : begin // checking for missalligned instruction
-                pc_out=pc_in;
                 inst_out=inst_in;
                 stall_pc=1'b0;
                 pc_misaligned_o =1'b0;
-                
+                misalign_fetch =1'b0;
                 if (is_missaligned) next_state = s1;
                 else begin 
                     next_state =s0;
                 end
         end
         s1 : begin //missalligned confirmed now fetch the next instruction, while feeding a nop thorugh the pipeline
-            pc_out = pc_in+32'd2;
             inst_out =32'h0000_0013;
             stall_pc =1'b1;
+            misalign_fetch=1'b1;
             pc_misaligned_o =1'b1;
             if (sel_for_branch) next_state = s0;  // if a brach or jump occurs, priotize the jump. thus resetting the realligner
             else  next_state =s2;            
@@ -88,8 +87,8 @@ module c_misalign (
         end
         s2 : begin  // instruction fetched and concatinated, turn off the stall signal and keep the pc as it is
             inst_out = {{conc_32_misallign[15:0]},{upper_16}};
-            pc_out = pc_in; 
             pc_misaligned_o =1'b1;
+            misalign_fetch =1'b0;
             stall_pc = 1'b0;
             if (sel_for_branch) next_state=s0;
             else begin

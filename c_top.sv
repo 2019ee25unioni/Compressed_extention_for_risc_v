@@ -7,7 +7,7 @@ module c_top(
 
     input   logic           br_taken_i,
 
-    output  logic   [31:0]  pc_realigned_o,
+    output  logic           misalign_fetch_to_adder,
     output  logic           pc_half_o,
     output  logic           stall_o,
     output  logic   [31:0]  instr_o
@@ -24,13 +24,12 @@ c_misalign misalign (
     .reset                  (reset_i), 
 
     .sel_for_branch         (br_taken_i),
-    .pc_in                  (pc_i), 
     .inst_in                (instr_i),
 
     //outputs
     .stall_pc               (stall_o),
     .pc_misaligned_o        (pc_misalign),
-    .pc_out                 (pc_realigned_o), 
+    .misalign_fetch         (misalign_fetch_to_adder),
     .inst_out               (instruction)
 );
 
